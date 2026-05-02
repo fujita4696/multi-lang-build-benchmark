@@ -106,6 +106,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
 
+          # pkg-config を無効化して依存検出を完全に止める
+          export PKG_CONFIG=""
+
           cmake . \
             -DBUILD_SHARED_LIBS=OFF \
             -DCURL_ZLIB=ON \
@@ -114,6 +117,9 @@ jobs:
             -DUSE_NGHTTP2=OFF \
             -DUSE_LIBIDN2=OFF \
             -DUSE_LIBPSL=OFF \
+            -DCURL_USE_LIBPSL=OFF \
+            -DCURL_USE_BROTLI=OFF \
+            -DCURL_USE_ZSTD=OFF \
             -DCURL_DISABLE_LDAP=ON \
             -DCURL_DISABLE_LDAPS=ON \
             -DCURL_DISABLE_DICT=ON \
