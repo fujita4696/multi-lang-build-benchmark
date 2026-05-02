@@ -1,5 +1,12 @@
 # Multi-Language Build Benchmark Report
 
+## CPU Information
+
+- **Model**: AMD EPYC 7763 64-Core Processor
+- **Sockets**: 1
+- **Cores per Socket**: 2
+- **Logical CPUs**: 4
+
 ## Build Time (Current Run)
 
 ![Build Time](build_time.svg)
@@ -41,8 +48,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 48928,
-  "build_time_sec": 19
+  "max_rss_kb": 48880,
+  "build_time_sec": 22
 }
 ```
 
@@ -51,8 +58,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156476,
-  "build_time_sec": 46
+  "max_rss_kb": 156464,
+  "build_time_sec": 57
 }
 ```
 
@@ -61,7 +68,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 748232,
-  "build_time_sec": 100
+  "max_rss_kb": 906200,
+  "build_time_sec": 98
 }
 ```
