@@ -106,8 +106,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
 
-          cmake .
+          cmake . \
+            -DCURL_DISABLE_LDAP=ON \
+            -DCURL_DISABLE_LDAPS=ON \
+            -DCURL_DISABLE_DICT=ON \
+            -DCURL_DISABLE_FTP=ON \
+            -DCURL_DISABLE_GOPHER=ON \
+            -DCURL_DISABLE_IMAP=ON \
+            -DCURL_DISABLE_MQTT=ON \
+            -DCURL_DISABLE_POP3=ON \
+            -DCURL_DISABLE_RTSP=ON \
+            -DCURL_DISABLE_SMB=ON \
+            -DCURL_DISABLE_SMTP=ON \
+            -DCURL_DISABLE_TELNET=ON \
+            -DCURL_DISABLE_TFTP=ON \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_LIBPSL=OFF \
+            -DUSE_NGHTTP2=OFF
+
           /usr/bin/time -v make -j$(nproc) 2> ../c_time.txt
+
 
       - name: AFTER build
         run: |
