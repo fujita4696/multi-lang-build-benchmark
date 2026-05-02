@@ -1,0 +1,341 @@
+name: Multi-Language Build Benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  python-build:
+    name: Python Build
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.save.outputs.result }}
+
+    steps:
+      - name: Record start time
+        id: start
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: CPU Info
+        run: |
+          echo "=== CPU INFO (Python) ==="
+          lscpu | grep "Model name"
+          lscpu | grep "^Socket"
+          lscpu | grep "^Core(s) per socket"
+          echo "Logical CPUs: $(nproc)"
+
+      - name: Clone Flask
+        run: git clone https://github.com/pallets/flask.git
+
+      - name: BEFORE build
+        run: |
+          echo "=== BEFORE BUILD (Python) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Build with Max RSS
+        run: |
+          cd flask
+          python3 -m pip install -U pip setuptools wheel
+          /usr/bin/time -v python3 setup.py build 2> ../python_time.txt
+
+      - name: AFTER build
+        run: |
+          echo "=== AFTER BUILD (Python) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Record end time
+        id: end
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Save result
+        id: save
+        run: |
+          MAX_RSS=$(grep "Maximum resident set size" python_time.txt | awk '{print $6}')
+          BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
+          echo "{\"language\":\"Python\",\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > python_result.json
+          echo "result=$(cat python_result.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: python_result
+          path: python_result.json
+
+
+  c-build:
+    name: C Build
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.save.outputs.result }}
+
+    steps:
+      - name: Record start time
+        id: start
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: CPU Info
+        run: |
+          echo "=== CPU INFO (C) ==="
+          lscpu | grep "Model name"
+          lscpu | grep "^Socket"
+          lscpu | grep "^Core(s) per socket"
+          echo "Logical CPUs: $(nproc)"
+
+      - name: Clone curl
+        run: git clone https://github.com/curl/curl.git
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool build-essential
+
+      - name: BEFORE build
+        run: |
+          echo "=== BEFORE BUILD (C) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Build with Max RSS
+        run: |
+          cd curl
+          ./buildconf
+          ./configure
+          /usr/bin/time -v make -j$(nproc) 2> ../c_time.txt
+
+      - name: AFTER build
+        run: |
+          echo "=== AFTER BUILD (C) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Record end time
+        id: end
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Save result
+        id: save
+        run: |
+          MAX_RSS=$(grep "Maximum resident set size" c_time.txt | awk '{print $6}')
+          BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
+          echo "{\"language\":\"C\",\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > c_result.json
+          echo "result=$(cat c_result.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: c_result
+          path: c_result.json
+
+
+  java-build:
+    name: Java Build
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.save.outputs.result }}
+
+    steps:
+      - name: Record start time
+        id: start
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: CPU Info
+        run: |
+          echo "=== CPU INFO (Java) ==="
+          lscpu | grep "Model name"
+          lscpu | grep "^Socket"
+          lscpu | grep "^Core(s) per socket"
+          echo "Logical CPUs: $(nproc)"
+
+      - name: Clone PetClinic
+        run: git clone https://github.com/spring-projects/spring-petclinic.git
+
+      - name: BEFORE build
+        run: |
+          echo "=== BEFORE BUILD (Java) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Build with Max RSS
+        run: |
+          cd spring-petclinic
+          /usr/bin/time -v mvn -B package 2> ../java_time.txt
+
+      - name: AFTER build
+        run: |
+          echo "=== AFTER BUILD (Java) ==="
+          cat /proc/loadavg
+          free -m
+
+      - name: Record end time
+        id: end
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Save result
+        id: save
+        run: |
+          MAX_RSS=$(grep "Maximum resident set size" java_time.txt | awk '{print $6}')
+          BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
+          echo "{\"language\":\"Java\",\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > java_result.json
+          echo "result=$(cat java_result.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: java_result
+          path: java_result.json
+
+
+  report:
+    name: Generate Report & Trends
+    runs-on: ubuntu-latest
+    needs: [python-build, c-build, java-build]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare history dirs
+        run: |
+          mkdir -p history/python history/c history/java
+
+      - name: Save current run JSONs
+        run: |
+          echo '${{ needs.python-build.outputs.result }}' > current_python.json
+          echo '${{ needs.c-build.outputs.result }}' > current_c.json
+          echo '${{ needs.java-build.outputs.result }}' > current_java.json
+
+      - name: Append to history
+        run: |
+          RUN=${{ github.run_number }}
+          cp current_python.json history/python/run_${RUN}.json
+          cp current_c.json history/c/run_${RUN}.json
+          cp current_java.json history/java/run_${RUN}.json
+
+      - name: Install Python packages
+        run: python3 -m pip install matplotlib
+
+      - name: Generate graphs & report
+        run: |
+          import json, glob, os
+          import matplotlib.pyplot as plt
+
+          # Load current results
+          with open("current_python.json") as f:
+              py = json.load(f)
+          with open("current_c.json") as f:
+              c = json.load(f)
+          with open("current_java.json") as f:
+              java = json.load(f)
+
+          langs = ["Python", "C", "Java"]
+          times = [py["build_time_sec"], c["build_time_sec"], java["build_time_sec"]]
+          mems = [py["max_rss_kb"], c["max_rss_kb"], java["max_rss_kb"]]
+
+          # Per-run comparison graphs (SVG)
+          plt.figure(figsize=(6,4))
+          plt.bar(langs, times)
+          plt.title("Build Time (sec)")
+          plt.ylabel("Seconds")
+          plt.savefig("build_time.svg")
+          plt.close()
+
+          plt.figure(figsize=(6,4))
+          plt.bar(langs, mems)
+          plt.title("Max Memory Usage (KB)")
+          plt.ylabel("KB")
+          plt.savefig("max_rss.svg")
+          plt.close()
+
+          # Trend graphs from history
+          def load_history(path):
+            files = sorted(glob.glob(os.path.join(path, "run_*.json")))
+            data = []
+            for f in files:
+              with open(f) as fp:
+                data.append(json.load(fp))
+            return data
+
+          for lang in ["python", "c", "java"]:
+            hist = load_history(f"history/{lang}")
+            if not hist:
+              continue
+            runs = list(range(1, len(hist)+1))
+            t = [h["build_time_sec"] for h in hist]
+            m = [h["max_rss_kb"] for h in hist]
+
+            plt.figure(figsize=(6,4))
+            plt.plot(runs, t, marker="o")
+            plt.title(f"{lang.capitalize()} Build Time Trend")
+            plt.xlabel("Run")
+            plt.ylabel("Seconds")
+            plt.savefig(f"{lang}_build_time_trend.svg")
+            plt.close()
+
+            plt.figure(figsize=(6,4))
+            plt.plot(runs, m, marker="o")
+            plt.title(f"{lang.capitalize()} Max RSS Trend")
+            plt.xlabel("Run")
+            plt.ylabel("KB")
+            plt.savefig(f"{lang}_max_rss_trend.svg")
+            plt.close()
+
+          # Markdown report
+          with open("report.md", "w", encoding="utf-8") as f:
+            f.write("# Multi-Language Build Benchmark Report\n\n")
+
+            f.write("## Build Time (Current Run)\n\n")
+            f.write("![Build Time](build_time.svg)\n\n")
+
+            f.write("## Max Memory Usage (Current Run)\n\n")
+            f.write("![Max RSS](max_rss.svg)\n\n")
+
+            f.write("## Trend Graphs\n\n")
+            for lang in ["python", "c", "java"]:
+              bt = f"{lang}_build_time_trend.svg"
+              mr = f"{lang}_max_rss_trend.svg"
+              if os.path.exists(bt):
+                f.write(f"### {lang.capitalize()} Build Time Trend\n\n")
+                f.write(f"![{lang.capitalize()} Build Time Trend]({bt})\n\n")
+              if os.path.exists(mr):
+                f.write(f"### {lang.capitalize()} Max RSS Trend\n\n")
+                f.write(f"![{lang.capitalize()} Max RSS Trend]({mr})\n\n")
+
+            f.write("## Raw Results (Current Run)\n\n")
+            f.write("### Python\n\n")
+            f.write("```json\n")
+            f.write(json.dumps(py, indent=2))
+            f.write("\n```\n\n")
+
+            f.write("### C\n\n")
+            f.write("```json\n")
+            f.write(json.dumps(c, indent=2))
+            f.write("\n```\n\n")
+
+            f.write("### Java\n\n")
+            f.write("```json\n")
+            f.write(json.dumps(java, indent=2))
+            f.write("\n```\n")
+
+        shell: python3
+
+      - name: Commit & Push history and report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add history report.md *.svg || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update benchmark history and report (run ${{ github.run_number }})"
+            git push
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark_report
+          path: |
+            report.md
+            *.svg
