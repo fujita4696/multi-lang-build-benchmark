@@ -18,14 +18,6 @@ jobs:
         id: start
         run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
 
-      - name: CPU Info
-        run: |
-          echo "=== CPU INFO (Python) ==="
-          lscpu | grep "Model name"
-          lscpu | grep "^Socket"
-          lscpu | grep "^Core(s) per socket"
-          echo "Logical CPUs: $(nproc)"
-
       - name: Install build tools
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
@@ -79,14 +71,6 @@ jobs:
       - name: Record start time
         id: start
         run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
-
-      - name: CPU Info
-        run: |
-          echo "=== CPU INFO (C) ==="
-          lscpu | grep "Model name"
-          lscpu | grep "^Socket"
-          lscpu | grep "^Core(s) per socket"
-          echo "Logical CPUs: $(nproc)"
 
       - name: Clone curl
         run: git clone https://github.com/curl/curl.git
@@ -172,14 +156,6 @@ jobs:
         id: start
         run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
 
-      - name: CPU Info
-        run: |
-          echo "=== CPU INFO (Java) ==="
-          lscpu | grep "Model name"
-          lscpu | grep "^Socket"
-          lscpu | grep "^Core(s) per socket"
-          echo "Logical CPUs: $(nproc)"
-
       - name: Clone PetClinic
         run: git clone https://github.com/spring-projects/spring-petclinic.git
 
@@ -232,6 +208,21 @@ jobs:
         run: |
           mkdir -p history/python history/c history/java
 
+      - name: Collect CPU Info
+        run: |
+          MODEL=$(lscpu | grep "Model name" | sed 's/Model name:\s*//')
+          SOCKETS=$(lscpu | grep "^Socket(s)" | awk '{print $2}')
+          CORES=$(lscpu | grep "^Core(s) per socket" | awk '{print $4}')
+          LOGICAL=$(nproc)
+
+          echo "{\"model\":\"$MODEL\",\"sockets\":$SOCKETS,\"cores_per_socket\":$CORES,\"logical_cpus\":$LOGICAL}" > cpu_info.json
+
+      - name: Upload CPU info
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu_info
+          path: cpu_info.json
+      
       - name: Save current run JSONs
         run: |
           echo '${{ needs.python-build.outputs.result }}' > current_python.json
@@ -255,6 +246,8 @@ jobs:
           import matplotlib.pyplot as plt
 
           # Load current results
+          with open("cpu_info/cpu_info.json") as f:
+              cpu = json.load(f)
           with open("current_python.json") as f:
               py = json.load(f)
           with open("current_c.json") as f:
@@ -319,6 +312,12 @@ jobs:
           # Markdown report
           with open("report.md", "w", encoding="utf-8") as f:
               f.write("# Multi-Language Build Benchmark Report\n\n")
+
+              f.write("## CPU Information\n\n")
+              f.write(f"- **Model**: {cpu['model']}\n")
+              f.write(f"- **Sockets**: {cpu['sockets']}\n")
+              f.write(f("- **Cores per Socket**: {cpu['cores_per_socket']}\n")
+              f.write(f"- **Logical CPUs**: {cpu['logical_cpus']}\n\n")
 
               f.write("## Build Time (Current Run)\n\n")
               f.write("![Build Time](build_time.svg)\n\n")
