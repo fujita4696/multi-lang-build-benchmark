@@ -1,9 +1,11 @@
 # Multi-Language Build Benchmark
 This repository benchmarks build performance for:
 
-- Python (Flask)
-- C (curl)
-- Java (Spring PetClinic)
+| Language | Sample OSS Project | Code Size | Build Command |
+| --- | --- | --- | --- |
+| Python | ``pallets/flask`` | approx. 12,000 lines | ``python ``setup.py ``build`` |
+| C | ``curl/curl`` | approx. 20,000 lines | ``./configure ``&& ``make`` |
+| Java | ``spring-projects/spring-petclinic`` | approx. 15,000 lines | ``mvn ``-B ``package`` |
 
 The GitHub Actions workflow:
 
