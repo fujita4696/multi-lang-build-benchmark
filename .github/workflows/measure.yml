@@ -246,7 +246,7 @@ jobs:
           import matplotlib.pyplot as plt
 
           # Load current results
-          with open("cpu_info/cpu_info.json") as f:
+          with open("cpu_info.json") as f:
               cpu = json.load(f)
           with open("current_python.json") as f:
               py = json.load(f)
