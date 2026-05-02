@@ -107,6 +107,13 @@ jobs:
           sudo apt-get install -y cmake build-essential
 
           cmake . \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCURL_ZLIB=ON \
+            -DUSE_ZLIB=ON \
+            -DUSE_BROTLI=OFF \
+            -DUSE_NGHTTP2=OFF \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_LIBPSL=OFF \
             -DCURL_DISABLE_LDAP=ON \
             -DCURL_DISABLE_LDAPS=ON \
             -DCURL_DISABLE_DICT=ON \
@@ -119,13 +126,9 @@ jobs:
             -DCURL_DISABLE_SMB=ON \
             -DCURL_DISABLE_SMTP=ON \
             -DCURL_DISABLE_TELNET=ON \
-            -DCURL_DISABLE_TFTP=ON \
-            -DUSE_LIBIDN2=OFF \
-            -DUSE_LIBPSL=OFF \
-            -DUSE_NGHTTP2=OFF
+            -DCURL_DISABLE_TFTP=ON
 
           /usr/bin/time -v make -j$(nproc) 2> ../c_time.txt
-
 
       - name: AFTER build
         run: |
