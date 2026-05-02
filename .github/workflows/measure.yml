@@ -26,6 +26,9 @@ jobs:
           lscpu | grep "^Core(s) per socket"
           echo "Logical CPUs: $(nproc)"
 
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
       - name: Clone Flask
         run: git clone https://github.com/pallets/flask.git
 
@@ -39,7 +42,7 @@ jobs:
         run: |
           cd flask
           python3 -m pip install -U pip setuptools wheel
-          /usr/bin/time -v python3 setup.py build 2> ../python_time.txt
+          /usr/bin/time -v python3 -m pip wheel . 2> ../python_time.txt
 
       - name: AFTER build
         run: |
@@ -100,8 +103,10 @@ jobs:
       - name: Build with Max RSS
         run: |
           cd curl
-          ./buildconf
-          ./configure
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+
+          cmake .
           /usr/bin/time -v make -j$(nproc) 2> ../c_time.txt
 
       - name: AFTER build
