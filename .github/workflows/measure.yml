@@ -367,6 +367,23 @@ jobs:
           plt.savefig("build_time_cpu_trend.svg")
           plt.close()
 
+          # Max CPU Usage Trend
+          plt.figure(figsize=(14,5))
+          for lang, hist in [("python", python_hist), ("c", c_hist), ("java", java_hist)]:
+              min_len = min(len(cpu_hist), len(hist))
+              labels = cpu_labels[:min_len]
+              cpuu = [h.get("max_cpu_percent", 0) for h in hist][:min_len]
+              plt.plot(labels, cpuu, marker="o", label=lang.capitalize(), color=colors[lang])
+
+          plt.title("Max CPU Usage Trend by CPU Model + Run")
+          plt.xlabel("CPU Model + Run")
+          plt.ylabel("CPU Usage (%)")
+          plt.xticks(rotation=45, ha="right")
+          plt.legend()
+          plt.tight_layout()
+          plt.savefig("max_cpu_cpu_trend.svg")
+          plt.close()
+
           # Max RSS Trend
           plt.figure(figsize=(14,5))
           for lang, hist in [("python", python_hist), ("c", c_hist), ("java", java_hist)]:
@@ -409,6 +426,9 @@ jobs:
               f.write("## Trend Graphs (Python + C + Java)\n\n")
               f.write("### Build Time Trend by CPU Model + Run\n\n")
               f.write("![Build Time Trend](build_time_cpu_trend.svg)\n\n")
+
+              f.write("### Max CPU Usage Trend by CPU Model + Run\n\n")
+              f.write("![Max CPU Usage Trend](max_cpu_cpu_trend.svg)\n\n")
 
               f.write("### Max RSS Trend by CPU Model + Run\n\n")
               f.write("![Max RSS Trend](max_rss_cpu_trend.svg)\n\n")
