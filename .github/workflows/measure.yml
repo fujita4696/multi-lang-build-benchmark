@@ -51,7 +51,7 @@ jobs:
         run: |
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
           MAX_RSS=$(grep "Maximum resident set size" python_time.txt | awk '{print $6}')
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          CPU_PERCENT=$(grep "Percent of CPU this job got" python_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
           echo "{
             \"build_time_sec\": ${BUILD_TIME:-0},
             \"max_rss_kb\": ${MAX_RSS:-0},
@@ -140,7 +140,7 @@ jobs:
         run: |
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
           MAX_RSS=$(grep "Maximum resident set size" c_time.txt | awk '{print $6}')
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          CPU_PERCENT=$(grep "Percent of CPU this job got" c_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
           echo "{
             \"build_time_sec\": ${BUILD_TIME:-0},
             \"max_rss_kb\": ${MAX_RSS:-0},
@@ -195,7 +195,7 @@ jobs:
         run: |
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
           MAX_RSS=$(grep "Maximum resident set size" java_time.txt | awk '{print $6}')
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          CPU_PERCENT=$(grep "Percent of CPU this job got" java_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
           echo "{
             \"build_time_sec\": ${BUILD_TIME:-0},
             \"max_rss_kb\": ${MAX_RSS:-0},
