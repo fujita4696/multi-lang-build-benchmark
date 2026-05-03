@@ -55,8 +55,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 48732,
-  "build_time_sec": 23
+  "max_rss_kb": 49284,
+  "build_time_sec": 24
 }
 ```
 
@@ -65,8 +65,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156520,
-  "build_time_sec": 50
+  "max_rss_kb": 157592,
+  "build_time_sec": 59
 }
 ```
 
@@ -75,7 +75,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 747032,
-  "build_time_sec": 105
+  "max_rss_kb": 723560,
+  "build_time_sec": 108
 }
 ```
