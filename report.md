@@ -2,7 +2,7 @@
 
 ## Current CPU Information
 
-- **Model**: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+- **Model**: AMD EPYC 7763 64-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -54,8 +54,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 48688,
-  "build_time_sec": 20
+  "max_rss_kb": 48800,
+  "build_time_sec": 21
 }
 ```
 
@@ -64,8 +64,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156476,
-  "build_time_sec": 49
+  "max_rss_kb": 156484,
+  "build_time_sec": 50
 }
 ```
 
@@ -74,7 +74,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 819852,
-  "build_time_sec": 99
+  "max_rss_kb": 727172,
+  "build_time_sec": 107
 }
 ```
