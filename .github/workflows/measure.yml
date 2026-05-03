@@ -245,8 +245,21 @@ jobs:
       - name: Generate graphs & report
         run: |
           python3 << 'EOF'
-          import json, glob, os
+          import json, glob, os, re
           import matplotlib.pyplot as plt
+
+          # -----------------------------
+          # CPU 名短縮関数
+          # -----------------------------
+          def shorten_cpu_name(name: str) -> str:
+              name = name.replace("Intel(R)", "").replace("Intel", "")
+              name = name.replace("Xeon(R)", "Xeon").replace("Xeon CPU", "Xeon")
+              name = name.replace("CPU", "")
+              name = name.replace("Platinum", "Plat").replace("Gold", "Gold").replace("Silver", "Silv")
+              name = name.replace("AMD", "").replace("EPYC", "EPYC")
+              name = re.sub(r"@\s*\d+\.\d+GHz", "", name)
+              name = re.sub(r"\s+", " ", name).strip()
+              return name
 
           # -----------------------------
           # Load current results
@@ -265,29 +278,6 @@ jobs:
               cpu = json.load(f)
 
           # -----------------------------
-          # Build comparison graphs (SVG)
-          # -----------------------------
-          langs = ["Python", "C", "Java"]
-          times = [py["build_time_sec"], c["build_time_sec"], java["build_time_sec"]]
-          mems = [py["max_rss_kb"], c["max_rss_kb"], java["max_rss_kb"]]
-
-          # Build time graph
-          plt.figure(figsize=(6,4))
-          plt.bar(langs, times)
-          plt.title("Build Time (sec)")
-          plt.ylabel("Seconds")
-          plt.savefig("build_time.svg")
-          plt.close()
-
-          # Max RSS graph
-          plt.figure(figsize=(6,4))
-          plt.bar(langs, mems)
-          plt.title("Max Memory Usage (KB)")
-          plt.ylabel("KB")
-          plt.savefig("max_rss.svg")
-          plt.close()
-
-          # -----------------------------
           # Load history
           # -----------------------------
           def load_history(path):
@@ -298,7 +288,6 @@ jobs:
                       data.append(json.load(fp))
               return data
 
-          # CPU history
           def load_cpu_history():
               files = sorted(glob.glob("history/cpu/run_*.json"))
               data = []
@@ -307,15 +296,59 @@ jobs:
                       data.append(json.load(fp))
               return data
 
+          python_hist = load_history("history/python")
+          c_hist = load_history("history/c")
+          java_hist = load_history("history/java")
           cpu_hist = load_cpu_history()
 
           # -----------------------------
-          # CPU Model + Run Number labels
+          # CPU Model + Run labels
           # -----------------------------
           cpu_labels = [
-              f"{entry['model']} (Run {i+1})"
+              f"{shorten_cpu_name(entry['model'])} (Run {i+1})"
               for i, entry in enumerate(cpu_hist)
           ]
+
+          # -----------------------------
+          # Compute unified Y-axis scales
+          # -----------------------------
+          all_times = (
+              [h["build_time_sec"] for h in python_hist] +
+              [h["build_time_sec"] for h in c_hist] +
+              [h["build_time_sec"] for h in java_hist]
+          )
+
+          all_rss = (
+              [h["max_rss_kb"] for h in python_hist] +
+              [h["max_rss_kb"] for h in c_hist] +
+              [h["max_rss_kb"] for h in java_hist]
+          )
+
+          max_time = max(all_times) if all_times else 1
+          max_rss = max(all_rss) if all_rss else 1
+
+          # -----------------------------
+          # Build comparison graphs (current run)
+          # -----------------------------
+          langs = ["Python", "C", "Java"]
+          times = [py["build_time_sec"], c["build_time_sec"], java["build_time_sec"]]
+          mems = [py["max_rss_kb"], c["max_rss_kb"], java["max_rss_kb"]]
+
+          plt.figure(figsize=(6,4))
+          plt.bar(langs, times)
+          plt.title("Build Time (sec)")
+          plt.ylabel("Seconds")
+          plt.ylim(0, max_time)
+          plt.savefig("build_time.svg")
+          plt.close()
+
+          plt.figure(figsize=(6,4))
+          plt.bar(langs, mems)
+          plt.title("Max Memory Usage (KB)")
+          plt.ylabel("KB")
+          plt.ylim(0, max_rss)
+          plt.savefig("max_rss.svg")
+          plt.close()
 
           # -----------------------------
           # CPU Model Based Trend Graphs
@@ -325,7 +358,6 @@ jobs:
               if not hist or not cpu_hist:
                   continue
 
-              # 長さを揃える
               min_len = min(len(cpu_hist), len(hist))
               labels = cpu_labels[:min_len]
               t = [h["build_time_sec"] for h in hist][:min_len]
@@ -337,6 +369,7 @@ jobs:
               plt.title(f"{lang.capitalize()} Build Time by CPU Model + Run")
               plt.xlabel("CPU Model + Run")
               plt.ylabel("Seconds")
+              plt.ylim(0, max_time)
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
               plt.savefig(f"{lang}_build_time_cpu_trend.svg")
@@ -348,6 +381,7 @@ jobs:
               plt.title(f"{lang.capitalize()} Max RSS by CPU Model + Run")
               plt.xlabel("CPU Model + Run")
               plt.ylabel("KB")
+              plt.ylim(0, max_rss)
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
               plt.savefig(f"{lang}_max_rss_cpu_trend.svg")
@@ -359,21 +393,19 @@ jobs:
           with open("report.md", "w", encoding="utf-8") as f:
               f.write("# Multi-Language Build Benchmark Report\n\n")
 
-              # Current CPU Info
-              f.write("## Current CPU Information\n\n")
+              f.write("## CPU Information (Current Run)\n\n")
               f.write(f"- **Model**: {cpu['model']}\n")
+              f.write(f"- **Short Name**: {shorten_cpu_name(cpu['model'])}\n")
               f.write(f"- **Sockets**: {cpu['sockets']}\n")
               f.write(f"- **Cores per Socket**: {cpu['cores_per_socket']}\n")
               f.write(f"- **Logical CPUs**: {cpu['logical_cpus']}\n\n")
 
-              # Current run graphs
               f.write("## Build Time (Current Run)\n\n")
               f.write("![Build Time](build_time.svg)\n\n")
 
               f.write("## Max Memory Usage (Current Run)\n\n")
               f.write("![Max RSS](max_rss.svg)\n\n")
 
-              # CPU Model Based Trend
               f.write("## CPU Model + Run Based Trend Graphs\n\n")
               for lang in ["python", "c", "java"]:
                   bt = f"{lang}_build_time_cpu_trend.svg"
@@ -386,7 +418,6 @@ jobs:
                       f.write(f"#### Max RSS by CPU Model + Run\n\n")
                       f.write(f"![{lang.capitalize()} Max RSS by CPU Model + Run]({mr})\n\n")
 
-              # Raw JSON
               f.write("## Raw Results (Current Run)\n\n")
 
               f.write("### Python\n\n```json\n")
