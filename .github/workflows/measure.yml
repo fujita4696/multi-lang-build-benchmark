@@ -308,7 +308,14 @@ jobs:
               return data
 
           cpu_hist = load_cpu_history()
-          cpu_labels = [entry["model"] for entry in cpu_hist]
+
+          # -----------------------------
+          # CPU Model + Run Number labels
+          # -----------------------------
+          cpu_labels = [
+              f"{entry['model']} (Run {i+1})"
+              for i, entry in enumerate(cpu_hist)
+          ]
 
           # -----------------------------
           # CPU Model Based Trend Graphs
@@ -318,14 +325,17 @@ jobs:
               if not hist or not cpu_hist:
                   continue
 
-              t = [h["build_time_sec"] for h in hist]
-              m = [h["max_rss_kb"] for h in hist]
+              # 長さを揃える
+              min_len = min(len(cpu_hist), len(hist))
+              labels = cpu_labels[:min_len]
+              t = [h["build_time_sec"] for h in hist][:min_len]
+              m = [h["max_rss_kb"] for h in hist][:min_len]
 
               # Build time by CPU model
-              plt.figure(figsize=(10,4))
-              plt.plot(cpu_labels, t, marker="o")
-              plt.title(f"{lang.capitalize()} Build Time by CPU Model")
-              plt.xlabel("CPU Model")
+              plt.figure(figsize=(12,4))
+              plt.plot(labels, t, marker="o")
+              plt.title(f"{lang.capitalize()} Build Time by CPU Model + Run")
+              plt.xlabel("CPU Model + Run")
               plt.ylabel("Seconds")
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
@@ -333,10 +343,10 @@ jobs:
               plt.close()
 
               # Max RSS by CPU model
-              plt.figure(figsize=(10,4))
-              plt.plot(cpu_labels, m, marker="o")
-              plt.title(f"{lang.capitalize()} Max RSS by CPU Model")
-              plt.xlabel("CPU Model")
+              plt.figure(figsize=(12,4))
+              plt.plot(labels, m, marker="o")
+              plt.title(f"{lang.capitalize()} Max RSS by CPU Model + Run")
+              plt.xlabel("CPU Model + Run")
               plt.ylabel("KB")
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
@@ -353,7 +363,7 @@ jobs:
               f.write("## Recently CPU Information\n\n")
               f.write(f"- **Model**: {cpu['model']}\n")
               f.write(f"- **Sockets**: {cpu['sockets']}\n")
-              f.write(f"- **Cores per Socket**: {cpu['cores_per_socket']}\n")
+              f.write(f("- **Cores per Socket**: {cpu['cores_per_socket']}\n")
               f.write(f"- **Logical CPUs**: {cpu['logical_cpus']}\n\n")
 
               # Current run graphs
@@ -364,16 +374,16 @@ jobs:
               f.write("![Max RSS](max_rss.svg)\n\n")
 
               # CPU Model Based Trend
-              f.write("## CPU Model Based Trend Graphs\n\n")
+              f.write("## CPU Model + Run Based Trend Graphs\n\n")
               for lang in ["python", "c", "java"]:
                   bt = f"{lang}_build_time_cpu_trend.svg"
                   mr = f"{lang}_max_rss_cpu_trend.svg"
                   if os.path.exists(bt):
-                      f.write(f"### {lang.capitalize()} Build Time by CPU Model\n\n")
-                      f.write(f"![{lang.capitalize()} Build Time by CPU Model]({bt})\n\n")
+                      f.write(f"### {lang.capitalize()} Build Time by CPU Model + Run\n\n")
+                      f.write(f"![{lang.capitalize()} Build Time by CPU Model + Run]({bt})\n\n")
                   if os.path.exists(mr):
-                      f.write(f"### {lang.capitalize()} Max RSS by CPU Model\n\n")
-                      f.write(f"![{lang.capitalize()} Max RSS by CPU Model]({mr})\n\n")
+                      f.write(f"### {lang.capitalize()} Max RSS by CPU Model + Run\n\n")
+                      f.write(f"![{lang.capitalize()} Max RSS by CPU Model + Run]({mr})\n\n")
 
               # Raw JSON
               f.write("## Raw Results (Current Run)\n\n")
