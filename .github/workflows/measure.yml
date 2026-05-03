@@ -310,24 +310,6 @@ jobs:
           ]
 
           # -----------------------------
-          # Compute unified Y-axis scales
-          # -----------------------------
-          all_times = (
-              [h["build_time_sec"] for h in python_hist] +
-              [h["build_time_sec"] for h in c_hist] +
-              [h["build_time_sec"] for h in java_hist]
-          )
-
-          all_rss = (
-              [h["max_rss_kb"] for h in python_hist] +
-              [h["max_rss_kb"] for h in c_hist] +
-              [h["max_rss_kb"] for h in java_hist]
-          )
-
-          max_time = max(all_times) if all_times else 1
-          max_rss = max(all_rss) if all_rss else 1
-
-          # -----------------------------
           # Build comparison graphs (current run)
           # -----------------------------
           langs = ["Python", "C", "Java"]
@@ -338,7 +320,6 @@ jobs:
           plt.bar(langs, times)
           plt.title("Build Time (sec)")
           plt.ylabel("Seconds")
-          plt.ylim(0, max_time)
           plt.savefig("build_time.svg")
           plt.close()
 
@@ -346,15 +327,17 @@ jobs:
           plt.bar(langs, mems)
           plt.title("Max Memory Usage (KB)")
           plt.ylabel("KB")
-          plt.ylim(0, max_rss)
           plt.savefig("max_rss.svg")
           plt.close()
 
           # -----------------------------
           # CPU Model Based Trend Graphs
           # -----------------------------
-          for lang in ["python", "c", "java"]:
-              hist = load_history(f"history/{lang}")
+          for lang, hist in [
+              ("python", python_hist),
+              ("c", c_hist),
+              ("java", java_hist)
+          ]:
               if not hist or not cpu_hist:
                   continue
 
@@ -363,13 +346,17 @@ jobs:
               t = [h["build_time_sec"] for h in hist][:min_len]
               m = [h["max_rss_kb"] for h in hist][:min_len]
 
+              # 言語ごとの最大値
+              lang_max_time = max(t)
+              lang_max_rss  = max(m)
+
               # Build time by CPU model
               plt.figure(figsize=(12,4))
               plt.plot(labels, t, marker="o")
               plt.title(f"{lang.capitalize()} Build Time by CPU Model + Run")
               plt.xlabel("CPU Model + Run")
               plt.ylabel("Seconds")
-              plt.ylim(0, max_time)
+              plt.ylim(0, lang_max_time)
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
               plt.savefig(f"{lang}_build_time_cpu_trend.svg")
@@ -381,7 +368,7 @@ jobs:
               plt.title(f"{lang.capitalize()} Max RSS by CPU Model + Run")
               plt.xlabel("CPU Model + Run")
               plt.ylabel("KB")
-              plt.ylim(0, max_rss)
+              plt.ylim(0, lang_max_rss)
               plt.xticks(rotation=45, ha="right")
               plt.tight_layout()
               plt.savefig(f"{lang}_max_rss_cpu_trend.svg")
