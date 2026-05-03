@@ -12,13 +12,13 @@
 
 ![Build Time](build_time.svg)
 
-## Max Memory Usage (Current Run)
-
-![Max RSS](max_rss.svg)
-
 ## Max CPU Usage (Current Run)
 
 ![Max CPU](max_cpu.svg)
+
+## Max Memory Usage (Current Run)
+
+![Max RSS](max_rss.svg)
 
 ## Trend Graphs (Python + C + Java)
 
@@ -41,9 +41,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 55,
-  "max_rss_kb": 48920,
-  "build_time_sec": 21
+  "max_cpu_percent": 82,
+  "max_rss_kb": 48852,
+  "build_time_sec": 25
 }
 ```
 
@@ -52,9 +52,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 363,
-  "max_rss_kb": 156592,
-  "build_time_sec": 52
+  "max_cpu_percent": 358,
+  "max_rss_kb": 156424,
+  "build_time_sec": 47
 }
 ```
 
@@ -63,8 +63,8 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 149,
-  "max_rss_kb": 709496,
-  "build_time_sec": 100
+  "max_cpu_percent": 162,
+  "max_rss_kb": 845612,
+  "build_time_sec": 94
 }
 ```
