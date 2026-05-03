@@ -2,7 +2,7 @@
 
 ## Recently CPU Information
 
-- **Model**: AMD EPYC 7763 64-Core Processor
+- **Model**: AMD EPYC 9V74 80-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -17,27 +17,33 @@
 
 ## CPU Model + Run Based Trend Graphs
 
-### Python Build Time by CPU Model + Run
+### Python
+
+#### Build Time by CPU Model + Run
 
 ![Python Build Time by CPU Model + Run](python_build_time_cpu_trend.svg)
 
-### Python Max RSS by CPU Model + Run
+#### Max RSS by CPU Model + Run
 
 ![Python Max RSS by CPU Model + Run](python_max_rss_cpu_trend.svg)
 
-### C Build Time by CPU Model + Run
+### C
+
+#### Build Time by CPU Model + Run
 
 ![C Build Time by CPU Model + Run](c_build_time_cpu_trend.svg)
 
-### C Max RSS by CPU Model + Run
+#### Max RSS by CPU Model + Run
 
 ![C Max RSS by CPU Model + Run](c_max_rss_cpu_trend.svg)
 
-### Java Build Time by CPU Model + Run
+### Java
+
+#### Build Time by CPU Model + Run
 
 ![Java Build Time by CPU Model + Run](java_build_time_cpu_trend.svg)
 
-### Java Max RSS by CPU Model + Run
+#### Max RSS by CPU Model + Run
 
 ![Java Max RSS by CPU Model + Run](java_max_rss_cpu_trend.svg)
 
@@ -48,8 +54,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 48820,
-  "build_time_sec": 23
+  "max_rss_kb": 48928,
+  "build_time_sec": 26
 }
 ```
 
@@ -58,8 +64,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156532,
-  "build_time_sec": 59
+  "max_rss_kb": 156348,
+  "build_time_sec": 56
 }
 ```
 
@@ -68,7 +74,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 688764,
-  "build_time_sec": 108
+  "max_rss_kb": 795132,
+  "build_time_sec": 110
 }
 ```
