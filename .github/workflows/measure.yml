@@ -417,11 +417,11 @@ jobs:
               f.write("## Build Time (Current Run)\n\n")
               f.write("![Build Time](build_time.svg)\n\n")
 
-              f.write("## Max Memory Usage (Current Run)\n\n")
-              f.write("![Max RSS](max_rss.svg)\n\n")
-
               f.write("## Max CPU Usage (Current Run)\n\n")
               f.write("![Max CPU](max_cpu.svg)\n\n")
+
+              f.write("## Max Memory Usage (Current Run)\n\n")
+              f.write("![Max RSS](max_rss.svg)\n\n")
 
               f.write("## Trend Graphs (Python + C + Java)\n\n")
               f.write("### Build Time Trend by CPU Model + Run\n\n")
