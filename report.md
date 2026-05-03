@@ -1,8 +1,9 @@
 # Multi-Language Build Benchmark Report
 
-## Current CPU Information
+## CPU Information (Current Run)
 
-- **Model**: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+- **Model**: AMD EPYC 7763 64-Core Processor
+- **Short Name**: EPYC 7763 64-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -54,8 +55,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 48916,
-  "build_time_sec": 21
+  "max_rss_kb": 48732,
+  "build_time_sec": 23
 }
 ```
 
@@ -64,8 +65,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156496,
-  "build_time_sec": 58
+  "max_rss_kb": 156520,
+  "build_time_sec": 50
 }
 ```
 
@@ -74,7 +75,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 797948,
-  "build_time_sec": 127
+  "max_rss_kb": 747032,
+  "build_time_sec": 105
 }
 ```
