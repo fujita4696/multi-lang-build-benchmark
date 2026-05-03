@@ -49,10 +49,14 @@ jobs:
       - name: Save result
         id: save
         run: |
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//')
-          MAX_RSS=$(grep "Maximum resident set size" python_time.txt | awk '{print $6}')
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
-          echo "{\"language\":\"Python\",\"max_cpu_percent\": $CPU_PERCENT,\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > python_result.json
+          MAX_RSS=$(grep "Maximum resident set size" python_time.txt | awk '{print $6}')
+          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          echo "{
+            \"build_time_sec\": ${BUILD_TIME:-0},
+            \"max_rss_kb\": ${MAX_RSS:-0},
+            \"max_cpu_percent\": ${CPU_PERCENT:-0}
+          }" > python_result.json
           echo "result=$(cat python_result.json)" >> $GITHUB_OUTPUT
 
       - name: Upload result
@@ -134,10 +138,14 @@ jobs:
       - name: Save result
         id: save
         run: |
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//')
-          MAX_RSS=$(grep "Maximum resident set size" c_time.txt | awk '{print $6}')
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
-          echo "{\"language\":\"C\",\"max_cpu_percent\": $CPU_PERCENT,\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > c_result.json
+          MAX_RSS=$(grep "Maximum resident set size" c_time.txt | awk '{print $6}')
+          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          echo "{
+            \"build_time_sec\": ${BUILD_TIME:-0},
+            \"max_rss_kb\": ${MAX_RSS:-0},
+            \"max_cpu_percent\": ${CPU_PERCENT:-0}
+          }" > c_result.json
           echo "result=$(cat c_result.json)" >> $GITHUB_OUTPUT
 
       - name: Upload result
@@ -185,10 +193,14 @@ jobs:
       - name: Save result
         id: save
         run: |
-          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//')
-          MAX_RSS=$(grep "Maximum resident set size" java_time.txt | awk '{print $6}')
           BUILD_TIME=$(( ${{ steps.end.outputs.time }} - ${{ steps.start.outputs.time }} ))
-          echo "{\"language\":\"Java\",\"max_cpu_percent\": $CPU_PERCENT,\"max_rss_kb\":$MAX_RSS,\"build_time_sec\":$BUILD_TIME}" > java_result.json
+          MAX_RSS=$(grep "Maximum resident set size" java_time.txt | awk '{print $6}')
+          CPU_PERCENT=$(grep "Percent of CPU this job got" build_time.txt | awk '{print $NF}' | sed 's/%//' || echo 0)
+          echo "{
+            \"build_time_sec\": ${BUILD_TIME:-0},
+            \"max_rss_kb\": ${MAX_RSS:-0},
+            \"max_cpu_percent\": ${CPU_PERCENT:-0}
+          }" > java_result.json
           echo "result=$(cat java_result.json)" >> $GITHUB_OUTPUT
 
       - name: Upload result
