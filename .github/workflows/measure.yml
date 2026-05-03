@@ -359,8 +359,8 @@ jobs:
           with open("report.md", "w", encoding="utf-8") as f:
               f.write("# Multi-Language Build Benchmark Report\n\n")
 
-              # Recently CPU Info
-              f.write("## Recently CPU Information\n\n")
+              # Current CPU Info
+              f.write("## Current CPU Information\n\n")
               f.write(f"- **Model**: {cpu['model']}\n")
               f.write(f"- **Sockets**: {cpu['sockets']}\n")
               f.write(f"- **Cores per Socket**: {cpu['cores_per_socket']}\n")
