@@ -378,11 +378,12 @@ jobs:
               for lang in ["python", "c", "java"]:
                   bt = f"{lang}_build_time_cpu_trend.svg"
                   mr = f"{lang}_max_rss_cpu_trend.svg"
+                  f.write(f"### {lang.capitalize()}\n\n")
                   if os.path.exists(bt):
-                      f.write(f"### {lang.capitalize()} Build Time by CPU Model + Run\n\n")
+                      f.write(f"#### Build Time by CPU Model + Run\n\n")
                       f.write(f"![{lang.capitalize()} Build Time by CPU Model + Run]({bt})\n\n")
                   if os.path.exists(mr):
-                      f.write(f"### {lang.capitalize()} Max RSS by CPU Model + Run\n\n")
+                      f.write(f"#### Max RSS by CPU Model + Run\n\n")
                       f.write(f"![{lang.capitalize()} Max RSS by CPU Model + Run]({mr})\n\n")
 
               # Raw JSON
