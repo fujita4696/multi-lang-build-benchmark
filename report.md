@@ -41,8 +41,8 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 91,
-  "max_rss_kb": 48868,
+  "max_cpu_percent": 90,
+  "max_rss_kb": 49040,
   "build_time_sec": 20
 }
 ```
@@ -52,9 +52,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 357,
+  "max_cpu_percent": 356,
   "max_rss_kb": 156532,
-  "build_time_sec": 54
+  "build_time_sec": 52
 }
 ```
 
@@ -63,8 +63,8 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 158,
-  "max_rss_kb": 768476,
-  "build_time_sec": 96
+  "max_cpu_percent": 137,
+  "max_rss_kb": 732928,
+  "build_time_sec": 112
 }
 ```
