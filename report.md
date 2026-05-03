@@ -2,7 +2,7 @@
 
 ## Recently CPU Information
 
-- **Model**: AMD EPYC 9V74 80-Core Processor
+- **Model**: AMD EPYC 7763 64-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -15,31 +15,31 @@
 
 ![Max RSS](max_rss.svg)
 
-## CPU Model Based Trend Graphs
+## CPU Model + Run Based Trend Graphs
 
-### Python Build Time by CPU Model
+### Python Build Time by CPU Model + Run
 
-![Python Build Time by CPU Model](python_build_time_cpu_trend.svg)
+![Python Build Time by CPU Model + Run](python_build_time_cpu_trend.svg)
 
-### Python Max RSS by CPU Model
+### Python Max RSS by CPU Model + Run
 
-![Python Max RSS by CPU Model](python_max_rss_cpu_trend.svg)
+![Python Max RSS by CPU Model + Run](python_max_rss_cpu_trend.svg)
 
-### C Build Time by CPU Model
+### C Build Time by CPU Model + Run
 
-![C Build Time by CPU Model](c_build_time_cpu_trend.svg)
+![C Build Time by CPU Model + Run](c_build_time_cpu_trend.svg)
 
-### C Max RSS by CPU Model
+### C Max RSS by CPU Model + Run
 
-![C Max RSS by CPU Model](c_max_rss_cpu_trend.svg)
+![C Max RSS by CPU Model + Run](c_max_rss_cpu_trend.svg)
 
-### Java Build Time by CPU Model
+### Java Build Time by CPU Model + Run
 
-![Java Build Time by CPU Model](java_build_time_cpu_trend.svg)
+![Java Build Time by CPU Model + Run](java_build_time_cpu_trend.svg)
 
-### Java Max RSS by CPU Model
+### Java Max RSS by CPU Model + Run
 
-![Java Max RSS by CPU Model](java_max_rss_cpu_trend.svg)
+![Java Max RSS by CPU Model + Run](java_max_rss_cpu_trend.svg)
 
 ## Raw Results (Current Run)
 
@@ -48,8 +48,8 @@
 ```json
 {
   "language": "Python",
-  "max_rss_kb": 49112,
-  "build_time_sec": 22
+  "max_rss_kb": 48820,
+  "build_time_sec": 23
 }
 ```
 
@@ -58,8 +58,8 @@
 ```json
 {
   "language": "C",
-  "max_rss_kb": 156484,
-  "build_time_sec": 51
+  "max_rss_kb": 156532,
+  "build_time_sec": 59
 }
 ```
 
@@ -68,7 +68,7 @@
 ```json
 {
   "language": "Java",
-  "max_rss_kb": 721860,
-  "build_time_sec": 106
+  "max_rss_kb": 688764,
+  "build_time_sec": 108
 }
 ```
