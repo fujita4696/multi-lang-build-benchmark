@@ -2,8 +2,8 @@
 
 ## CPU Information (Current Run)
 
-- **Model**: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
-- **Short Name**: Xeon Plat 8370C
+- **Model**: AMD EPYC 7763 64-Core Processor
+- **Short Name**: EPYC 7763 64-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -26,6 +26,10 @@
 
 ![Build Time Trend](build_time_cpu_trend.svg)
 
+### Max CPU Usage Trend by CPU Model + Run
+
+![Max CPU Usage Trend](max_cpu_cpu_trend.svg)
+
 ### Max RSS Trend by CPU Model + Run
 
 ![Max RSS Trend](max_rss_cpu_trend.svg)
@@ -37,9 +41,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 89,
-  "max_rss_kb": 48584,
-  "build_time_sec": 24
+  "max_cpu_percent": 91,
+  "max_rss_kb": 48868,
+  "build_time_sec": 20
 }
 ```
 
@@ -48,9 +52,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 353,
-  "max_rss_kb": 156600,
-  "build_time_sec": 44
+  "max_cpu_percent": 357,
+  "max_rss_kb": 156532,
+  "build_time_sec": 54
 }
 ```
 
@@ -59,8 +63,8 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 159,
-  "max_rss_kb": 759964,
-  "build_time_sec": 104
+  "max_cpu_percent": 158,
+  "max_rss_kb": 768476,
+  "build_time_sec": 96
 }
 ```
