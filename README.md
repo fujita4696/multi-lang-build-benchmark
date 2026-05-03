@@ -11,8 +11,8 @@ The GitHub Actions workflow:
 
 - Clones each project
 - Measures:
-  - CPU info
   - Build time
+  - Max CPU Usage
   - Max memory usage (Max RSS)
 - Generates SVG graphs
 - Produces a Markdown report
