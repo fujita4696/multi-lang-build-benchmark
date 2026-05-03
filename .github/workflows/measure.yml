@@ -204,10 +204,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Prepare history dirs
-        run: |
-          mkdir -p history/python history/c history/java
-
       - name: Collect CPU Info
         run: |
           MODEL=$(lscpu | grep "Model name" | sed 's/Model name:\s*//')
@@ -223,6 +219,12 @@ jobs:
           name: cpu_info
           path: cpu_info.json
       
+      - name: Save CPU history
+        run: |
+          mkdir -p history/cpu
+          RUN=${{ github.run_number }}
+          cp cpu_info.json history/cpu/run_${RUN}.json
+
       - name: Save current run JSONs
         run: |
           echo '${{ needs.python-build.outputs.result }}' > current_python.json
@@ -231,6 +233,7 @@ jobs:
 
       - name: Append to history
         run: |
+          mkdir -p history/python history/c history/java
           RUN=${{ github.run_number }}
           cp current_python.json history/python/run_${RUN}.json
           cp current_c.json history/c/run_${RUN}.json
@@ -245,9 +248,9 @@ jobs:
           import json, glob, os
           import matplotlib.pyplot as plt
 
+          # -----------------------------
           # Load current results
-          with open("cpu_info.json") as f:
-              cpu = json.load(f)
+          # -----------------------------
           with open("current_python.json") as f:
               py = json.load(f)
           with open("current_c.json") as f:
@@ -255,6 +258,15 @@ jobs:
           with open("current_java.json") as f:
               java = json.load(f)
 
+          # -----------------------------
+          # Load CPU info
+          # -----------------------------
+          with open("cpu_info.json") as f:
+              cpu = json.load(f)
+
+          # -----------------------------
+          # Build comparison graphs (SVG)
+          # -----------------------------
           langs = ["Python", "C", "Java"]
           times = [py["build_time_sec"], c["build_time_sec"], java["build_time_sec"]]
           mems = [py["max_rss_kb"], c["max_rss_kb"], java["max_rss_kb"]]
@@ -275,7 +287,9 @@ jobs:
           plt.savefig("max_rss.svg")
           plt.close()
 
-          # Trend graphs
+          # -----------------------------
+          # Load history
+          # -----------------------------
           def load_history(path):
               files = sorted(glob.glob(os.path.join(path, "run_*.json")))
               data = []
@@ -284,59 +298,86 @@ jobs:
                       data.append(json.load(fp))
               return data
 
+          # CPU history
+          def load_cpu_history():
+              files = sorted(glob.glob("history/cpu/run_*.json"))
+              data = []
+              for f in files:
+                  with open(f) as fp:
+                      data.append(json.load(fp))
+              return data
+
+          cpu_hist = load_cpu_history()
+          cpu_labels = [entry["model"] for entry in cpu_hist]
+
+          # -----------------------------
+          # CPU Model Based Trend Graphs
+          # -----------------------------
           for lang in ["python", "c", "java"]:
               hist = load_history(f"history/{lang}")
-              if not hist:
+              if not hist or not cpu_hist:
                   continue
 
-              runs = list(range(1, len(hist)+1))
               t = [h["build_time_sec"] for h in hist]
               m = [h["max_rss_kb"] for h in hist]
 
-              plt.figure(figsize=(6,4))
-              plt.plot(runs, t, marker="o")
-              plt.title(f"{lang.capitalize()} Build Time Trend")
-              plt.xlabel("Run")
+              # Build time by CPU model
+              plt.figure(figsize=(10,4))
+              plt.plot(cpu_labels, t, marker="o")
+              plt.title(f"{lang.capitalize()} Build Time by CPU Model")
+              plt.xlabel("CPU Model")
               plt.ylabel("Seconds")
-              plt.savefig(f"{lang}_build_time_trend.svg")
+              plt.xticks(rotation=45, ha="right")
+              plt.tight_layout()
+              plt.savefig(f"{lang}_build_time_cpu_trend.svg")
               plt.close()
 
-              plt.figure(figsize=(6,4))
-              plt.plot(runs, m, marker="o")
-              plt.title(f"{lang.capitalize()} Max RSS Trend")
-              plt.xlabel("Run")
+              # Max RSS by CPU model
+              plt.figure(figsize=(10,4))
+              plt.plot(cpu_labels, m, marker="o")
+              plt.title(f"{lang.capitalize()} Max RSS by CPU Model")
+              plt.xlabel("CPU Model")
               plt.ylabel("KB")
-              plt.savefig(f"{lang}_max_rss_trend.svg")
+              plt.xticks(rotation=45, ha="right")
+              plt.tight_layout()
+              plt.savefig(f"{lang}_max_rss_cpu_trend.svg")
               plt.close()
 
-          # Markdown report
+          # -----------------------------
+          # Generate Markdown Report
+          # -----------------------------
           with open("report.md", "w", encoding="utf-8") as f:
               f.write("# Multi-Language Build Benchmark Report\n\n")
 
+              # Recently CPU Info
               f.write("## CPU Information\n\n")
               f.write(f"- **Model**: {cpu['model']}\n")
               f.write(f"- **Sockets**: {cpu['sockets']}\n")
               f.write(f"- **Cores per Socket**: {cpu['cores_per_socket']}\n")
               f.write(f"- **Logical CPUs**: {cpu['logical_cpus']}\n\n")
 
+              # Current run graphs
               f.write("## Build Time (Current Run)\n\n")
               f.write("![Build Time](build_time.svg)\n\n")
 
               f.write("## Max Memory Usage (Current Run)\n\n")
               f.write("![Max RSS](max_rss.svg)\n\n")
 
-              f.write("## Trend Graphs\n\n")
+              # CPU Model Based Trend
+              f.write("## CPU Model Based Trend Graphs\n\n")
               for lang in ["python", "c", "java"]:
-                  bt = f"{lang}_build_time_trend.svg"
-                  mr = f"{lang}_max_rss_trend.svg"
+                  bt = f"{lang}_build_time_cpu_trend.svg"
+                  mr = f"{lang}_max_rss_cpu_trend.svg"
                   if os.path.exists(bt):
-                      f.write(f"### {lang.capitalize()} Build Time Trend\n\n")
-                      f.write(f"![{lang.capitalize()} Build Time Trend]({bt})\n\n")
+                      f.write(f"### {lang.capitalize()} Build Time by CPU Model\n\n")
+                      f.write(f"![{lang.capitalize()} Build Time by CPU Model]({bt})\n\n")
                   if os.path.exists(mr):
-                      f.write(f"### {lang.capitalize()} Max RSS Trend\n\n")
-                      f.write(f"![{lang.capitalize()} Max RSS Trend]({mr})\n\n")
+                      f.write(f"### {lang.capitalize()} Max RSS by CPU Model\n\n")
+                      f.write(f"![{lang.capitalize()} Max RSS by CPU Model]({mr})\n\n")
 
+              # Raw JSON
               f.write("## Raw Results (Current Run)\n\n")
+
               f.write("### Python\n\n```json\n")
               f.write(json.dumps(py, indent=2))
               f.write("\n```\n\n")
