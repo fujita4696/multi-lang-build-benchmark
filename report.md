@@ -2,8 +2,8 @@
 
 ## CPU Information (Current Run)
 
-- **Model**: AMD EPYC 9V74 80-Core Processor
-- **Short Name**: EPYC 9V74 80-Core Processor
+- **Model**: AMD EPYC 7763 64-Core Processor
+- **Short Name**: EPYC 7763 64-Core Processor
 - **Sockets**: 1
 - **Cores per Socket**: 2
 - **Logical CPUs**: 4
@@ -41,9 +41,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 83,
-  "max_rss_kb": 48948,
-  "build_time_sec": 21
+  "max_cpu_percent": 46,
+  "max_rss_kb": 48840,
+  "build_time_sec": 31
 }
 ```
 
@@ -52,9 +52,9 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 361,
-  "max_rss_kb": 156460,
-  "build_time_sec": 45
+  "max_cpu_percent": 348,
+  "max_rss_kb": 156376,
+  "build_time_sec": 47
 }
 ```
 
@@ -63,8 +63,8 @@
 ```json
 {
   "language": "Python",
-  "max_cpu_percent": 137,
-  "max_rss_kb": 695040,
-  "build_time_sec": 108
+  "max_cpu_percent": 139,
+  "max_rss_kb": 751436,
+  "build_time_sec": 113
 }
 ```
